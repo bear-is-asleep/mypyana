@@ -49,12 +49,16 @@ def multicol_addkey(df,s,fill=np.nan,inplace=False):
     else:
         return pd.concat([df, pd.DataFrame(data, index=df.index, columns=new)], axis=1)
     
-    
-
-def multicol_merge(lhs, rhs, **panda_kwargs):
+def multicol_col_prep(lhs,rhs):
     # Fix the columns
     lhs_col = lhs.columns
     rhs_col = rhs.columns
+    
+    #Make sure they are multiindex
+    if not isinstance(lhs_col, pd.MultiIndex):
+        lhs_col = pd.MultiIndex.from_tuples([lhs_col])
+    if not isinstance(rhs_col, pd.MultiIndex):
+        rhs_col = pd.MultiIndex.from_tuples([rhs_col])
 
     nlevel = max(lhs_col.nlevels, rhs_col.nlevels)
 
@@ -64,7 +68,16 @@ def multicol_merge(lhs, rhs, **panda_kwargs):
     lhs.columns = pd.MultiIndex.from_tuples([pad(c) for c in lhs_col])
     rhs.columns = pd.MultiIndex.from_tuples([pad(c) for c in rhs_col])
 
+    return lhs, rhs 
+
+def multicol_merge(lhs, rhs, **panda_kwargs):
+    lhs, rhs = multicol_col_prep(lhs, rhs)
+
     return lhs.merge(rhs, **panda_kwargs)
+def multicol_concat(lhs,rhs, **panda_kwargs):
+    lhs, rhs = multicol_col_prep(lhs, rhs)
+    
+    return pd.concat([lhs, rhs], **panda_kwargs)
 
 def detect_vectors(tree, branch):
     ret = []
