@@ -6,25 +6,25 @@ from . import geniesyst
 #from . import numisyst
 
 
-def make_df(f,branches,inds=None):
+def make_df(f,branches,entry_stop=None,inds=None):
     tree_name = get_tree_name(f, 'recTree')
-    df = loadbranches(f[tree_name], branches)
+    df = loadbranches(f[tree_name], branches, entry_stop=entry_stop)
     if inds:
         df = df.set_index(getcolumns(inds))
         df.index.names = [ind[-1] for ind in getcolumns(inds)] #get bare name of index
         if '__ntuple' in df.index.names:
             df.reset_index(level='__ntuple', drop=True, inplace=True)
     return df
-def make_hdrdf(f,inds=None):
-    df = make_df(f,hdrbranches,inds=inds)
+def make_hdrdf(f,entry_stop=None,inds=None):
+    df = make_df(f,hdrbranches,inds=inds,entry_stop=entry_stop)
     hdr = df.rec.hdr
     return hdr
 
-def make_mcnudf(f,inds=None, include_weights=False):
+def make_mcnudf(f,inds=None,entry_stop=None, include_weights=False):
     if inds:
-        df = make_df(f, mcnubranches+inds,inds=inds)
+        df = make_df(f, mcnubranches+inds,inds=inds,entry_stop=entry_stop)
     else:
-        df = make_df(f, mcnubranches,inds=inds)
+        df = make_df(f, mcnubranches,inds=inds,entry_stop=entry_stop)
     mcdf = df.rec.mc.nu
     #----Not supported yet
     if include_weights:
@@ -32,11 +32,11 @@ def make_mcnudf(f,inds=None, include_weights=False):
         mcdf = pd.concat([mcdf, wgtdf], axis=1)
     return mcdf
 
-def make_mcprimdf(f,inds=None, include_weights=False):
+def make_mcprimdf(f,inds=None,entry_stop=None, include_weights=False):
     if inds:
-        df = make_df(f, mcprimbranches+inds,inds=inds)
+        df = make_df(f, mcprimbranches+inds,inds=inds,entry_stop=entry_stop)
     else:
-        df = make_df(f, mcprimbranches,inds=inds)
+        df = make_df(f, mcprimbranches,inds=inds,entry_stop=entry_stop)
     mcdf = df.rec.mc.nu.prim
     #----Not supported yet
     if include_weights:
@@ -44,9 +44,9 @@ def make_mcprimdf(f,inds=None, include_weights=False):
         mcdf = pd.concat([mcdf, wgtdf], axis=1)
     return mcdf
 
-def make_pfpdf(f, scoreCut=False, requiret0=False, requireCosmic=False):
+def make_pfpdf(f,entry_stop=None,scoreCut=False, requiret0=False, requireCosmic=False):
     #inds not supported
-    df = make_df(f, pfpallbranches,inds=None)
+    df = make_df(f, pfpallbranches,inds=None,entry_stop=entry_stop)
     if scoreCut is not None:
         df = df[df.rec.slc.reco.pfp.trackScore > scoreCut]
     if requiret0: #check this requirement idk if it's set to a mask
@@ -56,13 +56,13 @@ def make_pfpdf(f, scoreCut=False, requiret0=False, requireCosmic=False):
     pfpdf = df.rec.slc.reco.pfp
     return pfpdf
 
-def make_slicedf(f,inds=None):
-    df = make_df(f, slcbranches,inds=None)
+def make_slicedf(f,inds=None,entry_stop=None):
+    df = make_df(f, slcbranches,inds=None,entry_stop=entry_stop)
     slcdf = df.rec.slc
     return slcdf
 
-def make_crumbsdf(f,inds=None):
-    df = make_df(f, crumbsbranches,inds=None)
+def make_crumbsdf(f,inds=None,entry_stop=None):
+    df = make_df(f, crumbsbranches,inds=None,entry_stop=entry_stop)
     crumbsdf = df.rec.slc.reco.crumbs
     return crumbsdf
     

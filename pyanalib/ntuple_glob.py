@@ -38,7 +38,7 @@ class NTupleProc(object):
 
 
 
-def _loaddf(applyfs, inds,g):
+def _loaddf(applyfs, inds,entry_stop, g):
     # fname, index, applyfs = inp
     index, fname = g
     # Convert pnfs to xroot URL's
@@ -47,7 +47,10 @@ def _loaddf(applyfs, inds,g):
     # # fix xroot URL's
     # elif fname.startswith("xroot"):
     #     fname = fname[1:]
-
+    print('entry_stop: ',entry_stop)
+    print('inds: ',inds)
+    print('fname: ',fname)
+    print('applyfs: ',applyfs)
     madef = False
 
     # Flatten non-flat cafs
@@ -66,7 +69,7 @@ def _loaddf(applyfs, inds,g):
     with f:
         try:
             
-            dfs = [applyf(f,inds[i]) for i,applyf in enumerate(applyfs)]
+            dfs = [applyf(f,entry_stop,inds[i]) for i,applyf in enumerate(applyfs)]
         except Exception as e:
             print("Error processing file (%s). Skipping..." % fname)
             print(e)
@@ -87,7 +90,7 @@ def _loaddf(applyfs, inds,g):
     return dfs
 
 class NTupleGlob(object):
-    def __init__(self, g, branches,inds=None):
+    def __init__(self, g, branches,entry_stop=None,inds=None):
         if isinstance(g, list) and len(g) == 1:
             g = g[0]
         if isinstance(g, list):
@@ -99,6 +102,7 @@ class NTupleGlob(object):
             self.glob = glob.glob(g)
         self.branches = branches
         self.inds = inds
+        self.entry_stop = entry_stop
 
     def dataframes(self, fs, maxfile=None, nproc=1, savemeta=False):
         if not isinstance(fs, list):
@@ -113,7 +117,8 @@ class NTupleGlob(object):
 
         ret = []
         with Pool(processes=nproc) as pool:
-            for i, dfs in enumerate(tqdm(pool.imap_unordered(partial(_loaddf, fs, self.inds), enumerate(thisglob)), total=len(thisglob), unit="file", delay=5, smoothing=0.6)):
+            for i, dfs in enumerate(tqdm(pool.imap_unordered(partial(_loaddf, fs, self.entry_stop, self.inds), enumerate(thisglob)), total=len(thisglob), unit="file", delay=5, smoothing=0.6)):
+                print('dfs: ',dfs)
                 if dfs is not None:
                     #[df.reset_index(level='__ntuple', drop=True, inplace=True) 
                     # for df in dfs if '__ntuple' in df.index.names]

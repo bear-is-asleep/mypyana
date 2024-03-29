@@ -16,6 +16,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input', help='Input file name', required=True)
     parser.add_argument('-o', '--output', help='Output file name', required=True)
     parser.add_argument('-c', '--config', help='Config file name', required=True)
+    parser.add_argument('-e', '--entry_stop', help='Stop after this many entries', required=False, default=None)
     args = parser.parse_args()
 
     exec(open(args.config).read())
