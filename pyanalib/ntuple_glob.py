@@ -68,7 +68,6 @@ def _loaddf(applyfs, inds,entry_stop, g):
         return None
     with f:
         try:
-            
             dfs = [applyf(f,entry_stop,inds[i]) for i,applyf in enumerate(applyfs)]
         except Exception as e:
             print("Error processing file (%s). Skipping..." % fname)
@@ -118,7 +117,6 @@ class NTupleGlob(object):
         ret = []
         with Pool(processes=nproc) as pool:
             for i, dfs in enumerate(tqdm(pool.imap_unordered(partial(_loaddf, fs, self.entry_stop, self.inds), enumerate(thisglob)), total=len(thisglob), unit="file", delay=5, smoothing=0.6)):
-                print('dfs: ',dfs)
                 if dfs is not None:
                     #[df.reset_index(level='__ntuple', drop=True, inplace=True) 
                     # for df in dfs if '__ntuple' in df.index.names]

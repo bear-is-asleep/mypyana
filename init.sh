@@ -19,3 +19,7 @@ pip install wheel setuptools
 pip install -r requirements.txt
 
 PATH=$OLDPATH
+
+#Set pyana path
+export PYANA=$PWD
+echo "PYANA=$PYANA"

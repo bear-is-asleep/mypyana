@@ -8,3 +8,6 @@ setup sbnana v09_75_03 -q e20:prof
 source env/bin/activate
 
 export PYTHONPATH=$PYTHONPATH:$PWD
+#Set pyana path
+export PYANA=$PWD
+echo "PYANA=$PYANA"

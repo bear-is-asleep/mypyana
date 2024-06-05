@@ -3,6 +3,8 @@ from .branches import *
 from .util import *
 from .ttree import *
 from . import geniesyst
+from . import g4syst
+from . import bnbsyst
 #from . import numisyst
 
 
@@ -20,15 +22,22 @@ def make_hdrdf(f,entry_stop=None,inds=None):
     hdr = df.rec.hdr
     return hdr
 
-def make_mcnudf(f,inds=None,entry_stop=None, include_weights=False):
+def make_mcnudf(f,inds=None,entry_stop=None, include_weights=True):
     if inds:
         df = make_df(f, mcnubranches+inds,inds=inds,entry_stop=entry_stop)
     else:
         df = make_df(f, mcnubranches,inds=inds,entry_stop=entry_stop)
     mcdf = df.rec.mc.nu
+    mcdf["ind"] = mcdf.index.get_level_values(1)
     #----Not supported yet
     if include_weights:
-        wgtdf = pd.concat([numisyst.numisyst(mcdf.pdg, mcdf.E), geniesyst.geniesyst(f, mcdf.ind)], axis=1)
+            
+        wgtdf = pd.concat([
+            bnbsyst.bnbsyst(f, mcdf.ind),
+            geniesyst.geniesyst(f, mcdf.ind),
+            #g4syst.g4syst(f,mcdf.ind)
+            ]
+                          , axis=1)
         mcdf = pd.concat([mcdf, wgtdf], axis=1)
     return mcdf
 
